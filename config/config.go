@@ -7,7 +7,7 @@ import (
 
 var (
 	Port             = getEnv("METRICS_PORT", "9090")
-	ProtectedMetrics = getEnvAsBool("METRICS_PROTECTED", true)
+	ProtectedMetrics = getEnvAsBool("METRICS_PROTECTED", false)
 	MetricsUsername  = getEnv("METRICS_USERNAME", "metricsUser")
 	MetricsPassword  = getEnv("METRICS_PASSWORD", "MetricsVeryHardPassword")
 	UpdateInterval   = getEnvAsInt("UPDATE_INTERVAL", 30)
