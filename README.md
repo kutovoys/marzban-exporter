@@ -100,22 +100,12 @@ Ensure to replace `<your-marzban-panel-url>`, `<your-marzban-username>`, `<your-
 
 ## Contribute
 
-We welcome contributions to the Marzban Metrics Exporter! Whether you're looking to fix bugs, add new features, or improve documentation, your help is appreciated. Here's how you can contribute:
+Contributions to Marzban Metrics Exporter are warmly welcomed. Whether it's bug fixes, new features, or documentation improvements, your input helps make this project better. Here's a quick guide to contributing:
 
-1. **Fork the Repository**: Start by forking the repository to your GitHub account.
+1. **Fork & Branch**: Fork this repository and create a branch for your work.
+2. **Implement Changes**: Work on your feature or fix, keeping code clean and well-documented.
+3. **Test**: Ensure your changes maintain or improve current functionality, adding tests for new features.
+4. **Commit & PR**: Commit your changes with clear messages, then open a pull request detailing your work.
+5. **Feedback**: Be prepared to engage with feedback and further refine your contribution.
 
-2. **Create a New Branch**: Create a branch in your forked repository for your changes. It's a good practice to name your branch something descriptive about the feature or fix you're working on.
-
-3. **Make Your Changes**: Implement your changes, fix, or feature in your branch. Make sure to keep your code clean and well-documented.
-
-4. **Test Your Changes**: Ensure your changes don't break existing functionality by running any tests if available. Consider adding new tests if you're adding a new feature.
-
-5. **Commit Your Changes**: Commit your changes with a clear and concise commit message, explaining what you've done and why.
-
-6. **Submit a Pull Request**: Push your changes to your fork and submit a pull request to the main repository. Provide a description of your changes and any other relevant information for the reviewers.
-
-7. **Respond to Feedback**: Once your pull request is reviewed, there might be feedback or questions from the repository maintainers. Be open to discuss your changes and make any necessary adjustments.
-
-Your contributions are what make the open-source community such an amazing place to learn, inspire, and create. We look forward to your contributions to the Marzban Metrics Exporter project!
-
-**Note**: If you're new to open-source contributions, the GitHub documentation on [Creating a pull request](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request) is a great place to start.
+Happy contributing! If you're new to this, GitHub's guide on [Creating a pull request](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request) is an excellent resource.
