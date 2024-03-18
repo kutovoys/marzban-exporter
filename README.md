@@ -98,6 +98,12 @@ scrape_configs:
 
 Ensure to replace `<your-marzban-panel-url>`, `<your-marzban-username>`, `<your-marzban-password>`, and `<exporter-ip>` with your actual information.
 
+## TODO
+
+- 🚀 Ensure all necessary environment variables are set and validate them at startup.
+- ⏳ Implement command line arguments for passing configuration options.
+- ⏳ Create a Grafana dashboard tailored for the Marzban Metrics Exporter to visualize the collected metrics effectively.
+
 ## Contribute
 
 Contributions to Marzban Metrics Exporter are warmly welcomed. Whether it's bug fixes, new features, or documentation improvements, your input helps make this project better. Here's a quick guide to contributing:
