@@ -7,14 +7,19 @@ on:
       - README.md
       - .github/workflows/dockerhub-description.yml
 jobs:
-  dockerHubDescription:
+  PushContainerReadme:
     runs-on: ubuntu-latest
+    name: Push README to Docker Hub
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Docker Hub Description
-        uses: peter-evans/dockerhub-description@v4
+      - name: git checkout
+        uses: actions/checkout@v2
+      - name: push README to Dockerhub
+        uses: christian-korneck/update-container-description-action@v1
+        env:
+          DOCKER_USER: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKER_PASS: ${{ secrets.DOCKERHUB_TOKEN }}
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
-          repository: peterevans/dockerhub-description
+          destination_container_repo: kutovoys/marzban-exporter
+          provider: dockerhub
+          short_description: "Prometheus metrics exporter for Marzban panel"
+          readme_file: "README.md"
