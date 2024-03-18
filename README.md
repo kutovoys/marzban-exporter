@@ -1,9 +1,7 @@
 # Marzban Metrics Exporter
 
-[![GitHub Release](https://img.shields.io/github/v/release/kutovoys/marzban-exporter?style=flat&color=blue)
-](https://github.com/kutovoys/marzban-exporter/releases/latest)
-[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/kutovoys/marzban-exporter/build-publish.yml)
-](https://github.com/kutovoys/marzban-exporter/actions/workflows/build-publish.yml)
+[![GitHub Release](https://img.shields.io/github/v/release/kutovoys/marzban-exporter?style=flat&color=blue)](https://github.com/kutovoys/marzban-exporter/releases/latest)
+[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/kutovoys/marzban-exporter/build-publish.yml)](https://github.com/kutovoys/marzban-exporter/actions/workflows/build-publish.yml)
 [![DockerHub](https://img.shields.io/badge/DockerHub-kutovoys%2Fmarzban--exporter-blue)](https://hub.docker.com/r/kutovoys/marzban-exporter/)
 [![GitHub License](https://img.shields.io/github/license/kutovoys/marzban-exporter?color=greeen)](https://github.com/kutovoys/marzban-exporter/blob/main/LICENSE)
 
