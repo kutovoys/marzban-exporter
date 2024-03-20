@@ -48,6 +48,13 @@ var (
 		},
 		[]string{"data_limit_reset_strategy", "note", "username", "status", "last_user_agent"},
 	)
+	UserExpirationDate = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "marzban_user_expiration_date",
+			Help: "User's subscription expiration date",
+		},
+		[]string{"data_limit_reset_strategy", "note", "username", "status", "last_user_agent"},
+	)
 	UserOnline = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name: "marzban_user_online",

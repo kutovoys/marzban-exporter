@@ -24,6 +24,7 @@ func init() {
 		metrics.UserDataLimit,
 		metrics.UserUsedTraffic,
 		metrics.UserLifetimeUsedTraffic,
+		metrics.UserExpirationDate,
 		metrics.UserOnline,
 
 		// System-related metrics

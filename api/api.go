@@ -177,6 +177,7 @@ func FetchUsersStats(token string) {
 		metrics.UserDataLimit.WithLabelValues(user.DataLimitResetStrategy, user.Note, user.Username, user.Status, firstWord).Set(user.DataLimit)
 		metrics.UserUsedTraffic.WithLabelValues(user.DataLimitResetStrategy, user.Note, user.Username, user.Status, firstWord).Set(user.UsedTraffic)
 		metrics.UserLifetimeUsedTraffic.WithLabelValues(user.DataLimitResetStrategy, user.Note, user.Username, user.Status, firstWord).Set(user.LifetimeUsedTraffic)
+		metrics.UserExpirationDate.WithLabelValues(user.DataLimitResetStrategy, user.Note, user.Username, user.Status, firstWord).Set(user.Expire)
 	}
 }
 

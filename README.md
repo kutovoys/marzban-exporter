@@ -32,6 +32,7 @@ Below is a table of the metrics provided by Marzban Metrics Exporter:
 | `marzban_user_data_limit`                | Data limit of the user.                                 |
 | `marzban_user_used_traffic`              | Used traffic of the user.                               |
 | `marzban_user_lifetime_used_traffic`     | Lifetime used traffic of the user.                      |
+| `marzban_user_expiration_date`           | User's subscription expiration date                     |
 | `marzban_user_online`                    | Whether a user is online within the last 2 minutes.     |
 | `marzban_core_started`                   | Indicates if the core is started (1) or not (0).        |
 | `marzban_panel_mem_total`                | Total memory.                                           |
