@@ -56,7 +56,7 @@ func FetchNodesStatus(token string) {
 		if node.Status == "connected" {
 			status = 1.0
 		}
-		metrics.NodesStatus.WithLabelValues(node.Name, node.Address, fmt.Sprintf("%d", node.ID)).Set(status)
+		metrics.NodesStatus.WithLabelValues(node.Name, node.Address, fmt.Sprintf("%d", node.ID), fmt.Sprintf("%f", node.UsageCoef), node.XrayVer, node.Status).Set(status)
 	}
 }
 

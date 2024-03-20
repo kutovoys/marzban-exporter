@@ -9,7 +9,7 @@ var (
 			Name: "marzban_nodes_status",
 			Help: "Status of Marzban nodes",
 		},
-		[]string{"name", "address", "id"},
+		[]string{"name", "address", "id", "usage_coefficient", "xray_version", "status"},
 	)
 	NodesUplink = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{

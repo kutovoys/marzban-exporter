@@ -18,10 +18,12 @@ type AuthTokenResponse struct {
 }
 
 type Node struct {
-	Name    string `json:"name"`
-	Address string `json:"address"`
-	ID      int    `json:"id"`
-	Status  string `json:"status"`
+	Name      string  `json:"name"`
+	Address   string  `json:"address"`
+	ID        int     `json:"id"`
+	Status    string  `json:"status"`
+	UsageCoef float64 `json:"usage_coefficient"`
+	XrayVer   string  `json:"xray_version"`
 }
 
 type NodeUsage struct {
