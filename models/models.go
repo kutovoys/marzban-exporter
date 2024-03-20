@@ -47,7 +47,7 @@ type SystemStats struct {
 
 type User struct {
 	Proxies                map[string]interface{} `json:"proxies"`
-	Expire                 *string                `json:"expire"`
+	Expire                 float64                `json:"expire"`
 	DataLimit              float64                `json:"data_limit"`
 	DataLimitResetStrategy string                 `json:"data_limit_reset_strategy"`
 	Inbounds               map[string][]string    `json:"inbounds"`
