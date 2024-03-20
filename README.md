@@ -14,7 +14,7 @@ Marzban Metrics Exporter is an application designed to collect and export metric
 - **System Health Monitoring**: Reports on system health indicators such as total and used memory, CPU cores, CPU usage, total number of users, active users, and bandwidth metrics.
 - **User Activity Tracking**: Monitors user activity, including data limits, used traffic, lifetime used traffic, and online status within the last 2 minutes.
 - **Version and Start Time Information**: Includes core version information and whether the core service has started successfully.
-- **Configurable via Environment Variables**: Allows customization and configuration through environment variables, making it easy to adjust settings such as metrics port, update interval, and more.
+- **Configurable via Environment Variables and Command-line Arguments**: Allows customization and configuration through both environment variables and command-line arguments, making it easy to adjust settings.
 - **Support for Multiple Architectures**: Docker images are available for multiple architectures, including AMD64 and ARM64, ensuring compatibility across various deployment environments.
 - **Optional BasicAuth Protection**: Provides the option to secure the metrics endpoint with BasicAuth, adding an additional layer of security.
 - **Integration with Prometheus**: Designed to integrate seamlessly with Prometheus, facilitating easy setup and configuration for monitoring Marzban VPN services.
@@ -47,22 +47,30 @@ Below is a table of the metrics provided by Marzban Metrics Exporter:
 
 ## Configuration
 
-Below is a table of environment variables for configuring the exporter:
+Marzban Metrics Exporter can be configured using environment variables or command-line arguments. When both are provided, command-line arguments take precedence.
 
-| Variable Name       | Required | Default Value              | Description                                                         |
-| ------------------- | -------- | -------------------------- | ------------------------------------------------------------------- |
-| `MARZBAN_BASE_URL`  | Yes      | `https://your-marzban-url` | URL of the Marzban management panel.                                |
-| `MARZBAN_USERNAME`  | Yes      | `your-marzban-username`    | Username for the Marzban panel.                                     |
-| `MARZBAN_PASSWORD`  | Yes      | `your-marzban-password`    | Password for the Marzban panel.                                     |
-| `METRICS_PORT`      | No       | `9090`                     | Port for the metrics server.                                        |
-| `METRICS_PROTECTED` | No       | `false`                    | Enable BasicAuth protection for metrics endpoint.                   |
-| `METRICS_USERNAME`  | No       | `metricsUser`              | Username for BasicAuth, effective if `METRICS_PROTECTED` is `true`. |
-| `METRICS_PASSWORD`  | No       | `MetricsVeryHardPassword`  | Password for BasicAuth, effective if `METRICS_PROTECTED` is `true`. |
-| `UPDATE_INTERVAL`   | No       | `30`                       | Interval (in seconds) for metrics update.                           |
-| `TIMEZONE`          | No       | `UTC`                      | Timezone for correct time display.                                  |
-| `INACTIVITY_TIME`   | No       | `2`                        | Time (in minutes) to determine user activity.                       |
+Below is a table of configuration options:
 
-## How to Run
+| Variable Name       | Command-Line Argument | Required | Default Value              | Description                                                         |
+| ------------------- | --------------------- | -------- | -------------------------- | ------------------------------------------------------------------- |
+| `MARZBAN_BASE_URL`  | `--marzban-base-url`  | Yes      | `https://your-marzban-url` | URL of the Marzban management panel.                                |
+| `MARZBAN_USERNAME`  | `--marzban-username`  | Yes      | `your-marzban-username`    | Username for the Marzban panel.                                     |
+| `MARZBAN_PASSWORD`  | `--marzban-password`  | Yes      | `your-marzban-password`    | Password for the Marzban panel.                                     |
+| `METRICS_PORT`      | `--metrics-port`      | No       | `9090`                     | Port for the metrics server.                                        |
+| `METRICS_PROTECTED` | `--metrics-protected` | No       | `false`                    | Enable BasicAuth protection for metrics endpoint.                   |
+| `METRICS_USERNAME`  | `--metrics-username`  | No       | `metricsUser`              | Username for BasicAuth, effective if `METRICS_PROTECTED` is `true`. |
+| `METRICS_PASSWORD`  | `--metrics-password`  | No       | `MetricsVeryHardPassword`  | Password for BasicAuth, effective if `METRICS_PROTECTED` is `true`. |
+| `UPDATE_INTERVAL`   | `--update-interval`   | No       | `30`                       | Interval (in seconds) for metrics update.                           |
+| `TIMEZONE`          | `--timezone`          | No       | `UTC`                      | Timezone for correct time display.                                  |
+| `INACTIVITY_TIME`   | `--inactivity-time`   | No       | `2`                        | Time (in minutes) to determine user activity.                       |
+
+## Usage
+
+### CLI
+
+```bash
+/marzban-exporter --marzban-base-url=<your-marzban-panel-url> --marzban-username=<your-marzban-username> --marzban-password=<your-marzban-password>
+```
 
 ### Docker
 
@@ -105,8 +113,8 @@ Ensure to replace `<your-marzban-panel-url>`, `<your-marzban-username>`, `<your-
 
 ## TODO
 
-- 🚀 Ensure all necessary environment variables are set and validate them at startup.
-- ⏳ Implement command line arguments for passing configuration options.
+- ✅ Ensure all necessary environment variables are set and validate them at startup.
+- ✅ Implement command line arguments for passing configuration options.
 - ⏳ Create a Grafana dashboard tailored for the Marzban Metrics Exporter to visualize the collected metrics effectively.
 
 ## Contribute

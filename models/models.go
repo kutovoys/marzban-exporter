@@ -1,5 +1,18 @@
 package models
 
+type CLI struct {
+	Port             string `name:"metrics-port" help:"Port to listen on" default:"9090" env:"METRICS_PORT"`
+	ProtectedMetrics bool   `name:"metrics-protected" help:"Whether metrics are protected by basic auth" default:"false" env:"METRICS_PROTECTED"`
+	MetricsUsername  string `name:"metrics-username" help:"Username for metrics if protected by basic auth" default:"metricsUser" env:"METRICS_USERNAME"`
+	MetricsPassword  string `name:"metrics-password" help:"Password for metrics if protected by basic auth" default:"MetricsVeryHardPassword" env:"METRICS_PASSWORD"`
+	UpdateInterval   int    `name:"update-interval" help:"Interval for metrics update in seconds" default:"30" env:"UPDATE_INTERVAL"`
+	TimeZone         string `name:"timezone" help:"Timezone used in the application" default:"UTC" env:"TIMEZONE"`
+	InactivityTime   int    `name:"inactivity-time" help:"Time in minutes after which a user is considered inactive" default:"2" env:"INACTIVITY_TIME"`
+	BaseURL          string `name:"marzban-base-url" help:"Marzban panel base URL" env:"MARZBAN_BASE_URL" required:""`
+	ApiUsername      string `name:"marzban-username" help:"Marzban panel username" env:"MARZBAN_USERNAME" required:""`
+	ApiPassword      string `name:"marzban-password" help:"Marzban panel password" env:"MARZBAN_PASSWORD" required:""`
+}
+
 type AuthTokenResponse struct {
 	AccessToken string `json:"access_token"`
 }

@@ -38,7 +38,7 @@ func sendRequest(url, token string) ([]byte, error) {
 }
 
 func FetchNodesStatus(token string) {
-	url := fmt.Sprintf("%s/api/nodes", config.BaseURL)
+	url := fmt.Sprintf("%s/api/nodes", config.CLIConfig.BaseURL)
 	body, err := sendRequest(url, token)
 	if err != nil {
 		log.Println("Error making request for nodes status:", err)
@@ -61,7 +61,7 @@ func FetchNodesStatus(token string) {
 }
 
 func FetchNodesUsage(token string) {
-	url := fmt.Sprintf("%s/api/nodes/usage", config.BaseURL)
+	url := fmt.Sprintf("%s/api/nodes/usage", config.CLIConfig.BaseURL)
 	body, err := sendRequest(url, token)
 	if err != nil {
 		log.Println("Error making request for nodes usage:", err)
@@ -85,7 +85,7 @@ func FetchNodesUsage(token string) {
 }
 
 func FetchSystemStats(token string) {
-	url := fmt.Sprintf("%s/api/system", config.BaseURL)
+	url := fmt.Sprintf("%s/api/system", config.CLIConfig.BaseURL)
 	body, err := sendRequest(url, token)
 	if err != nil {
 		log.Println("Error making request for system stats:", err)
@@ -111,7 +111,7 @@ func FetchSystemStats(token string) {
 }
 
 func FetchCoreStatus(token string) {
-	url := fmt.Sprintf("%s/api/core", config.BaseURL)
+	url := fmt.Sprintf("%s/api/core", config.CLIConfig.BaseURL)
 	body, err := sendRequest(url, token)
 	if err != nil {
 		log.Println("Error making request for core status:", err)
@@ -139,7 +139,7 @@ func FetchCoreStatus(token string) {
 }
 
 func FetchUsersStats(token string) {
-	url := fmt.Sprintf("%s/api/users", config.BaseURL)
+	url := fmt.Sprintf("%s/api/users", config.CLIConfig.BaseURL)
 	body, err := sendRequest(url, token)
 	if err != nil {
 		log.Println("Error making request for user stats:", err)
@@ -152,7 +152,7 @@ func FetchUsersStats(token string) {
 		return
 	}
 
-	location, err := time.LoadLocation(config.TimeZone)
+	location, err := time.LoadLocation(config.CLIConfig.TimeZone)
 	if err != nil {
 		log.Println("Error setting timezone:", err)
 		return
@@ -167,7 +167,7 @@ func FetchUsersStats(token string) {
 				continue
 			}
 			onlineAt = onlineAt.In(location)
-			if now.Sub(onlineAt) <= time.Duration(config.InactivityTime)*time.Minute {
+			if now.Sub(onlineAt) <= time.Duration(config.CLIConfig.InactivityTime)*time.Minute {
 				onlineValue = 1
 			}
 		}
@@ -181,8 +181,8 @@ func FetchUsersStats(token string) {
 }
 
 func GetAuthToken() (string, error) {
-	url := fmt.Sprintf("%s/api/admin/token", config.BaseURL)
-	data := []byte(fmt.Sprintf("username=%s&password=%s", config.ApiUsername, config.ApiPassword))
+	url := fmt.Sprintf("%s/api/admin/token", config.CLIConfig.BaseURL)
+	data := []byte(fmt.Sprintf("username=%s&password=%s", config.CLIConfig.ApiUsername, config.CLIConfig.ApiPassword))
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(data))
 	if err != nil {

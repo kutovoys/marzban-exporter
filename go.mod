@@ -8,6 +8,7 @@ require (
 )
 
 require (
+	github.com/alecthomas/kong v0.9.0
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/google/uuid v1.4.0 // indirect

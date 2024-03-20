@@ -44,7 +44,7 @@ func init() {
 func BasicAuthMiddleware(username, password string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if config.ProtectedMetrics {
+			if config.CLIConfig.ProtectedMetrics {
 				user, pass, ok := r.BasicAuth()
 				if !ok || user != username || pass != password {
 					w.Header().Set("WWW-Authenticate", `Basic realm="metrics"`)
@@ -58,6 +58,7 @@ func BasicAuthMiddleware(username, password string) func(http.Handler) http.Hand
 }
 
 func main() {
+	config.Parse()
 	token, err := api.GetAuthToken()
 	if err != nil {
 		log.Println("Error getting auth token:", err)
@@ -66,27 +67,36 @@ func main() {
 
 	s := gocron.NewScheduler(time.Local)
 
-	s.Every(config.UpdateInterval).Seconds().Do(func() {
+	s.Every(config.CLIConfig.UpdateInterval).Seconds().Do(func() {
+		log.Print("Starting to collect NodesStatus metrics")
 		go api.FetchNodesStatus(token)
+		log.Print("Finished collecting NodesStatus metrics")
 	})
-	s.Every(config.UpdateInterval).Seconds().Do(func() {
+	s.Every(config.CLIConfig.UpdateInterval).Seconds().Do(func() {
+		log.Print("Starting to collect NodesUsage metrics")
 		go api.FetchNodesUsage(token)
+		log.Print("Finished collecting NodesUsage metrics")
 	})
-	s.Every(config.UpdateInterval).Seconds().Do(func() {
+	s.Every(config.CLIConfig.UpdateInterval).Seconds().Do(func() {
+		log.Print("Starting to collect SystemStats metrics")
 		go api.FetchSystemStats(token)
+		log.Print("Finished collecting SystemStats metrics")
 	})
-	s.Every(config.UpdateInterval).Seconds().Do(func() {
+	s.Every(config.CLIConfig.UpdateInterval).Seconds().Do(func() {
+		log.Print("Starting to collect UsersStats metrics")
 		go api.FetchUsersStats(token)
+		log.Print("Finished collecting UsersStats metrics")
 	})
-
-	s.Every(config.UpdateInterval).Seconds().Do(func() {
+	s.Every(config.CLIConfig.UpdateInterval).Seconds().Do(func() {
+		log.Print("Starting to collect CoreStatus metrics")
 		go api.FetchCoreStatus(token)
+		log.Print("Finished collecting CoreStatus metrics")
 	})
 
 	go s.StartAsync()
 
-	http.Handle("/metrics", BasicAuthMiddleware(config.MetricsUsername,
-		config.MetricsPassword)(promhttp.Handler()))
-	log.Printf("Starting server on :%s", config.Port)
-	log.Fatal(http.ListenAndServe(":"+config.Port, nil))
+	http.Handle("/metrics", BasicAuthMiddleware(config.CLIConfig.MetricsUsername,
+		config.CLIConfig.MetricsPassword)(promhttp.Handler()))
+	log.Printf("Starting server on :%s", config.CLIConfig.Port)
+	log.Fatal(http.ListenAndServe(":"+config.CLIConfig.Port, nil))
 }
