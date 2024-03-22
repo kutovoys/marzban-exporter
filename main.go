@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"marzban-exporter/api"
 	"marzban-exporter/config"
@@ -11,6 +12,11 @@ import (
 	"github.com/go-co-op/gocron"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+)
+
+var (
+	version = "unknown"
+	commit  = "unknown"
 )
 
 func init() {
@@ -59,7 +65,9 @@ func BasicAuthMiddleware(username, password string) func(http.Handler) http.Hand
 }
 
 func main() {
-	config.Parse()
+	config.Parse(version, commit)
+
+	fmt.Println("Marzban Exporter", version)
 
 	s := gocron.NewScheduler(time.Local)
 

@@ -11,14 +11,19 @@ import (
 
 var CLIConfig models.CLI
 
-func Parse() {
-	kong.Parse(&CLIConfig,
+func Parse(version, commit string) {
+	ctx := kong.Parse(&CLIConfig,
 		kong.Name("marzban-exporter"),
 		kong.Description("A command-line application for exporting Marzban metrics."),
+		kong.Vars{
+			"version": version,
+			"commit":  commit,
+		},
 	)
+
 	if err := validate(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
-		os.Exit(2)
+		ctx.Exit(2)
 	}
 }
 
