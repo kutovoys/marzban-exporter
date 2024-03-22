@@ -52,18 +52,19 @@ Marzban Metrics Exporter can be configured using environment variables or comman
 
 Below is a table of configuration options:
 
-| Variable Name       | Command-Line Argument | Required | Default Value              | Description                                                         |
-| ------------------- | --------------------- | -------- | -------------------------- | ------------------------------------------------------------------- |
-| `MARZBAN_BASE_URL`  | `--marzban-base-url`  | Yes      | `https://your-marzban-url` | URL of the Marzban management panel.                                |
-| `MARZBAN_USERNAME`  | `--marzban-username`  | Yes      | `your-marzban-username`    | Username for the Marzban panel.                                     |
-| `MARZBAN_PASSWORD`  | `--marzban-password`  | Yes      | `your-marzban-password`    | Password for the Marzban panel.                                     |
-| `METRICS_PORT`      | `--metrics-port`      | No       | `9090`                     | Port for the metrics server.                                        |
-| `METRICS_PROTECTED` | `--metrics-protected` | No       | `false`                    | Enable BasicAuth protection for metrics endpoint.                   |
-| `METRICS_USERNAME`  | `--metrics-username`  | No       | `metricsUser`              | Username for BasicAuth, effective if `METRICS_PROTECTED` is `true`. |
-| `METRICS_PASSWORD`  | `--metrics-password`  | No       | `MetricsVeryHardPassword`  | Password for BasicAuth, effective if `METRICS_PROTECTED` is `true`. |
-| `UPDATE_INTERVAL`   | `--update-interval`   | No       | `30`                       | Interval (in seconds) for metrics update.                           |
-| `TIMEZONE`          | `--timezone`          | No       | `UTC`                      | Timezone for correct time display.                                  |
-| `INACTIVITY_TIME`   | `--inactivity-time`   | No       | `2`                        | Time (in minutes) to determine user activity.                       |
+| Variable Name       | Command-Line Argument | Required | Default Value                | Description                                                         |
+| ------------------- | --------------------- | -------- | ---------------------------- | ------------------------------------------------------------------- |
+| `MARZBAN_BASE_URL`  | `--marzban-base-url`  | No       | `https://<your-marzban-url>` | URL of the Marzban management panel.                                |
+| `MARZBAN_USERNAME`  | `--marzban-username`  | Yes      | `<your-marzban-username>`    | Username for the Marzban panel.                                     |
+| `MARZBAN_PASSWORD`  | `--marzban-password`  | Yes      | `<your-marzban-password>`    | Password for the Marzban panel.                                     |
+| `MARZBAN_SOCKET`    | `--marzban-socket`    | No       | `<your-marzban-socket-path>` | Path to Marzban Unix Domain Socket.                                 |
+| `METRICS_PORT`      | `--metrics-port`      | No       | `9090`                       | Port for the metrics server.                                        |
+| `METRICS_PROTECTED` | `--metrics-protected` | No       | `false`                      | Enable BasicAuth protection for metrics endpoint.                   |
+| `METRICS_USERNAME`  | `--metrics-username`  | No       | `metricsUser`                | Username for BasicAuth, effective if `METRICS_PROTECTED` is `true`. |
+| `METRICS_PASSWORD`  | `--metrics-password`  | No       | `MetricsVeryHardPassword`    | Password for BasicAuth, effective if `METRICS_PROTECTED` is `true`. |
+| `UPDATE_INTERVAL`   | `--update-interval`   | No       | `30`                         | Interval (in seconds) for metrics update.                           |
+| `TIMEZONE`          | `--timezone`          | No       | `UTC`                        | Timezone for correct time display.                                  |
+| `INACTIVITY_TIME`   | `--inactivity-time`   | No       | `2`                          | Time (in minutes) to determine user activity.                       |
 
 ## Usage
 

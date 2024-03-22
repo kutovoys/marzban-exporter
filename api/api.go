@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -9,37 +10,48 @@ import (
 	"marzban-exporter/config"
 	"marzban-exporter/metrics"
 	"marzban-exporter/models"
+	"net"
 	"net/http"
 	"regexp"
 	"time"
 )
 
-var httpClient = &http.Client{
-	Timeout: time.Second * 10,
-}
-
 var firstWordRegexp = regexp.MustCompile(`^[a-zA-Z]+`)
 
-func sendRequest(url, token string) ([]byte, error) {
-	req, err := http.NewRequest("GET", url, nil)
+func GetAuthToken() (string, error) {
+	path := "/api/admin/token"
+	data := []byte(fmt.Sprintf("username=%s&password=%s", config.CLIConfig.ApiUsername, config.CLIConfig.ApiPassword))
+
+	httpClient := createHttpClient()
+	req, err := createRequest("POST", path, "")
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-	req.Header.Set("Accept", "application/json")
-	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Body = io.NopCloser(bytes.NewBuffer(data))
 
 	resp, err := httpClient.Do(req)
 	if err != nil {
-		return nil, err
+		return "", fmt.Errorf("error making auth request: %v", err)
 	}
 	defer resp.Body.Close()
 
-	return io.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("error reading auth response body: %v", err)
+	}
+
+	var tokenResponse models.AuthTokenResponse
+	if err := json.Unmarshal(body, &tokenResponse); err != nil {
+		return "", fmt.Errorf("error unmarshaling auth token response: %v", err)
+	}
+
+	return tokenResponse.AccessToken, nil
 }
 
 func FetchNodesStatus(token string) {
-	url := fmt.Sprintf("%s/api/nodes", config.CLIConfig.BaseURL)
-	body, err := sendRequest(url, token)
+	path := "/api/nodes"
+	body, err := sendRequest(path, token)
 	if err != nil {
 		log.Println("Error making request for nodes status:", err)
 		return
@@ -61,8 +73,8 @@ func FetchNodesStatus(token string) {
 }
 
 func FetchNodesUsage(token string) {
-	url := fmt.Sprintf("%s/api/nodes/usage", config.CLIConfig.BaseURL)
-	body, err := sendRequest(url, token)
+	path := "/api/nodes/usage"
+	body, err := sendRequest(path, token)
 	if err != nil {
 		log.Println("Error making request for nodes usage:", err)
 		return
@@ -85,8 +97,8 @@ func FetchNodesUsage(token string) {
 }
 
 func FetchSystemStats(token string) {
-	url := fmt.Sprintf("%s/api/system", config.CLIConfig.BaseURL)
-	body, err := sendRequest(url, token)
+	path := "/api/system"
+	body, err := sendRequest(path, token)
 	if err != nil {
 		log.Println("Error making request for system stats:", err)
 		return
@@ -111,8 +123,8 @@ func FetchSystemStats(token string) {
 }
 
 func FetchCoreStatus(token string) {
-	url := fmt.Sprintf("%s/api/core", config.CLIConfig.BaseURL)
-	body, err := sendRequest(url, token)
+	path := "/api/core"
+	body, err := sendRequest(path, token)
 	if err != nil {
 		log.Println("Error making request for core status:", err)
 		return
@@ -139,8 +151,8 @@ func FetchCoreStatus(token string) {
 }
 
 func FetchUsersStats(token string) {
-	url := fmt.Sprintf("%s/api/users", config.CLIConfig.BaseURL)
-	body, err := sendRequest(url, token)
+	path := "/api/users"
+	body, err := sendRequest(path, token)
 	if err != nil {
 		log.Println("Error making request for user stats:", err)
 		return
@@ -181,34 +193,47 @@ func FetchUsersStats(token string) {
 	}
 }
 
-func GetAuthToken() (string, error) {
-	url := fmt.Sprintf("%s/api/admin/token", config.CLIConfig.BaseURL)
-	data := []byte(fmt.Sprintf("username=%s&password=%s", config.CLIConfig.ApiUsername, config.CLIConfig.ApiPassword))
+func createHttpClient() *http.Client {
+	if config.CLIConfig.SocketPath != "" {
+		return &http.Client{
+			Transport: &http.Transport{
+				DialContext: func(ctx context.Context, _, _ string) (net.Conn, error) {
+					return net.Dial("unix", config.CLIConfig.SocketPath)
+				},
+			},
+			Timeout: 10 * time.Second,
+		}
+	}
+	return &http.Client{Timeout: 10 * time.Second}
+}
 
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(data))
-	if err != nil {
-		return "", err
+func createRequest(method, path, token string) (*http.Request, error) {
+	url := fmt.Sprintf("%s%s", config.CLIConfig.BaseURL, path)
+	if config.CLIConfig.SocketPath != "" {
+		url = "http://unix" + path
 	}
 
-	req.Header.Set("Accept", "application/json")
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	req, err := http.NewRequest(method, url, nil)
 	if err != nil {
-		return "", err
+		return nil, err
+	}
+	req.Header.Set("Accept", "application/json")
+	req.Header.Set("Authorization", "Bearer "+token)
+	return req, nil
+}
+
+func sendRequest(path, token string) ([]byte, error) {
+	httpClient := createHttpClient()
+	req, err := createRequest("GET", path, token)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := httpClient.Do(req)
+	if err != nil {
+		return nil, err
 	}
 	defer resp.Body.Close()
 
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", err
-	}
-
-	var tokenResponse models.AuthTokenResponse
-	if err := json.Unmarshal(body, &tokenResponse); err != nil {
-		return "", err
-	}
-
-	return tokenResponse.AccessToken, nil
+	return io.ReadAll(resp.Body)
 }

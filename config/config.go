@@ -1,7 +1,10 @@
 package config
 
 import (
+	"errors"
+	"fmt"
 	"marzban-exporter/models"
+	"os"
 
 	"github.com/alecthomas/kong"
 )
@@ -9,10 +12,19 @@ import (
 var CLIConfig models.CLI
 
 func Parse() {
-	ctx := kong.Parse(&CLIConfig,
+	kong.Parse(&CLIConfig,
 		kong.Name("marzban-exporter"),
 		kong.Description("A command-line application for exporting Marzban metrics."),
 	)
-	// Use ctx if needed
-	_ = ctx
+	if err := validate(); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(2)
+	}
+}
+
+func validate() error {
+	if CLIConfig.BaseURL == "" && CLIConfig.SocketPath == "" {
+		return errors.New("marzban-exporter: error: either --marzban-base-url or --marzban-socket must be provided")
+	}
+	return nil
 }

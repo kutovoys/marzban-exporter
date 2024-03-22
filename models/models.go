@@ -8,9 +8,10 @@ type CLI struct {
 	UpdateInterval   int    `name:"update-interval" help:"Interval for metrics update in seconds" default:"30" env:"UPDATE_INTERVAL"`
 	TimeZone         string `name:"timezone" help:"Timezone used in the application" default:"UTC" env:"TIMEZONE"`
 	InactivityTime   int    `name:"inactivity-time" help:"Time in minutes after which a user is considered inactive" default:"2" env:"INACTIVITY_TIME"`
-	BaseURL          string `name:"marzban-base-url" help:"Marzban panel base URL" env:"MARZBAN_BASE_URL" required:""`
+	BaseURL          string `name:"marzban-base-url" help:"Marzban panel base URL" env:"MARZBAN_BASE_URL"`
 	ApiUsername      string `name:"marzban-username" help:"Marzban panel username" env:"MARZBAN_USERNAME" required:""`
 	ApiPassword      string `name:"marzban-password" help:"Marzban panel password" env:"MARZBAN_PASSWORD" required:""`
+	SocketPath       string `name:"marzban-socket" help:"Path to Marzban Unix Domain Socket" env:"MARZBAN_SOCKET"`
 }
 
 type AuthTokenResponse struct {
