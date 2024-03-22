@@ -60,38 +60,39 @@ func BasicAuthMiddleware(username, password string) func(http.Handler) http.Hand
 
 func main() {
 	config.Parse()
-	token, err := api.GetAuthToken()
-	if err != nil {
-		log.Println("Error getting auth token:", err)
-		return
-	}
 
 	s := gocron.NewScheduler(time.Local)
 
 	s.Every(config.CLIConfig.UpdateInterval).Seconds().Do(func() {
-		log.Print("Starting to collect NodesStatus metrics")
-		go api.FetchNodesStatus(token)
+		token, err := api.GetAuthToken()
+		if err != nil {
+			log.Println("Error getting auth token:", err)
+			return
+		}
+
+		log.Print("Starting to collect metrics")
+
+		log.Print("Collecting NodesStatus metrics")
+		api.FetchNodesStatus(token)
 		log.Print("Finished collecting NodesStatus metrics")
-	})
-	s.Every(config.CLIConfig.UpdateInterval).Seconds().Do(func() {
-		log.Print("Starting to collect NodesUsage metrics")
-		go api.FetchNodesUsage(token)
+
+		log.Print("Collecting NodesUsage metrics")
+		api.FetchNodesUsage(token)
 		log.Print("Finished collecting NodesUsage metrics")
-	})
-	s.Every(config.CLIConfig.UpdateInterval).Seconds().Do(func() {
-		log.Print("Starting to collect SystemStats metrics")
-		go api.FetchSystemStats(token)
+
+		log.Print("Collecting SystemStats metrics")
+		api.FetchSystemStats(token)
 		log.Print("Finished collecting SystemStats metrics")
-	})
-	s.Every(config.CLIConfig.UpdateInterval).Seconds().Do(func() {
-		log.Print("Starting to collect UsersStats metrics")
-		go api.FetchUsersStats(token)
+
+		log.Print("Collecting UsersStats metrics")
+		api.FetchUsersStats(token)
 		log.Print("Finished collecting UsersStats metrics")
-	})
-	s.Every(config.CLIConfig.UpdateInterval).Seconds().Do(func() {
-		log.Print("Starting to collect CoreStatus metrics")
-		go api.FetchCoreStatus(token)
+
+		log.Print("Collecting CoreStatus metrics")
+		api.FetchCoreStatus(token)
 		log.Print("Finished collecting CoreStatus metrics")
+
+		log.Print("Finished all metric collection")
 	})
 
 	go s.StartAsync()
