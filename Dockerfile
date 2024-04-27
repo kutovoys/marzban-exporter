@@ -4,6 +4,8 @@ ARG TARGETPLATFORM
 ARG BUILDPLATFORM
 ARG TARGETOS
 ARG TARGETARCH
+ARG GIT_TAG
+ARG GIT_COMMIT
 
 ENV CGO_ENABLED=0
 ENV GO111MODULE=on
@@ -18,7 +20,7 @@ RUN go mod download
 COPY .  .
 
 RUN CGO_ENABLED=${CGO_ENABLED} GOOS=${TARGETOS} GOARCH=${TARGETARCH} \
-  go build -a -installsuffix cgo -o /usr/bin/marzban-exporter .
+  go build -ldflags="-X main.version=${GIT_TAG} -X main.commit=${GIT_COMMIT}" -a -installsuffix cgo -o /usr/bin/marzban-exporter .
 
 FROM --platform=${BUILDPLATFORM:-linux/amd64} gcr.io/distroless/static:nonroot
 
