@@ -9,7 +9,7 @@ var (
 			Name: "marzban_nodes_status",
 			Help: "Status of Marzban nodes",
 		},
-		[]string{"name", "address", "id", "usage_coefficient", "xray_version", "status"},
+		[]string{"id", "name"},
 	)
 	NodesUplink = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
@@ -32,35 +32,35 @@ var (
 			Name: "marzban_user_data_limit",
 			Help: "Data limit of the user",
 		},
-		[]string{"data_limit_reset_strategy", "note", "username", "status", "last_user_agent"},
+		[]string{"username"},
 	)
 	UserUsedTraffic = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name: "marzban_user_used_traffic",
 			Help: "Used traffic of the user",
 		},
-		[]string{"data_limit_reset_strategy", "note", "username", "status", "last_user_agent"},
+		[]string{"username"},
 	)
 	UserLifetimeUsedTraffic = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name: "marzban_user_lifetime_used_traffic",
 			Help: "Lifetime used traffic of the user",
 		},
-		[]string{"data_limit_reset_strategy", "note", "username", "status", "last_user_agent"},
+		[]string{"username"},
 	)
 	UserExpirationDate = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name: "marzban_user_expiration_date",
 			Help: "User's subscription expiration date",
 		},
-		[]string{"data_limit_reset_strategy", "note", "username", "status", "last_user_agent"},
+		[]string{"username"},
 	)
 	UserOnline = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name: "marzban_user_online",
 			Help: "Whether a user is online within the last 2 minutes",
 		},
-		[]string{"note", "username", "status", "last_user_agent"},
+		[]string{"username"},
 	)
 
 	// System-related metrics

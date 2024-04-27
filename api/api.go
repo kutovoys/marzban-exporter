@@ -12,11 +12,8 @@ import (
 	"marzban-exporter/models"
 	"net"
 	"net/http"
-	"regexp"
 	"time"
 )
-
-var firstWordRegexp = regexp.MustCompile(`^[a-zA-Z]+`)
 
 func GetAuthToken() (string, error) {
 	path := "/api/admin/token"
@@ -68,7 +65,7 @@ func FetchNodesStatus(token string) {
 		if node.Status == "connected" {
 			status = 1.0
 		}
-		metrics.NodesStatus.WithLabelValues(node.Name, node.Address, fmt.Sprintf("%d", node.ID), fmt.Sprintf("%f", node.UsageCoef), node.XrayVer, node.Status).Set(status)
+		metrics.NodesStatus.WithLabelValues(fmt.Sprintf("%d", node.ID), node.Name).Set(status)
 	}
 }
 
@@ -183,13 +180,12 @@ func FetchUsersStats(token string) {
 				onlineValue = 1
 			}
 		}
-		firstWord := firstWordRegexp.FindString(user.SubLastUserAgent)
 
-		metrics.UserOnline.WithLabelValues(user.Note, user.Username, user.Status, firstWord).Set(onlineValue)
-		metrics.UserDataLimit.WithLabelValues(user.DataLimitResetStrategy, user.Note, user.Username, user.Status, firstWord).Set(user.DataLimit)
-		metrics.UserUsedTraffic.WithLabelValues(user.DataLimitResetStrategy, user.Note, user.Username, user.Status, firstWord).Set(user.UsedTraffic)
-		metrics.UserLifetimeUsedTraffic.WithLabelValues(user.DataLimitResetStrategy, user.Note, user.Username, user.Status, firstWord).Set(user.LifetimeUsedTraffic)
-		metrics.UserExpirationDate.WithLabelValues(user.DataLimitResetStrategy, user.Note, user.Username, user.Status, firstWord).Set(user.Expire)
+		metrics.UserOnline.WithLabelValues(user.Username).Set(onlineValue)
+		metrics.UserDataLimit.WithLabelValues(user.Username).Set(user.DataLimit)
+		metrics.UserUsedTraffic.WithLabelValues(user.Username).Set(user.UsedTraffic)
+		metrics.UserLifetimeUsedTraffic.WithLabelValues(user.Username).Set(user.LifetimeUsedTraffic)
+		metrics.UserExpirationDate.WithLabelValues(user.Username).Set(user.Expire)
 	}
 }
 
