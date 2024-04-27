@@ -27,7 +27,6 @@ jobs:
           push: true
           build-args: |
             GIT_TAG=${{ github.event.release.tag_name }}
-            GIT_COMMIT=${{ GITHUB_SHA }}
           tags: |
             kutovoys/marzban-exporter:latest
             kutovoys/marzban-exporter:${{ github.event.release.tag_name }}
