@@ -197,10 +197,10 @@ func createHttpClient() *http.Client {
 					return net.Dial("unix", config.CLIConfig.SocketPath)
 				},
 			},
-			Timeout: 10 * time.Second,
+			Timeout: 30 * time.Second,
 		}
 	}
-	return &http.Client{Timeout: 10 * time.Second}
+	return &http.Client{Timeout: 30 * time.Second}
 }
 
 func createRequest(method, path, token string) (*http.Request, error) {
