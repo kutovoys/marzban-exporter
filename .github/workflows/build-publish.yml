@@ -1,8 +1,9 @@
 name: ci
 
 on:
-  release:
-    types: [created]
+  push:
+    tags:
+      - "v*"
 
 jobs:
   docker:
