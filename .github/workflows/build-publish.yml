@@ -32,4 +32,4 @@ jobs:
             GIT_TAG=${{ github.event.release.tag_name }}
           tags: |
             kutovoys/marzban-exporter:latest
-            kutovoys/marzban-exporter:$GIT_TAG_NAME
+            kutovoys/marzban-exporter:${{ steps.tagName.outputs.tag }}
