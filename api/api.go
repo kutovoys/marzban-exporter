@@ -12,13 +12,26 @@ import (
 	"marzban-exporter/models"
 	"net"
 	"net/http"
+	"sync"
 	"time"
 )
 
+var tokenCache struct {
+	Token     string
+	ExpiresAt time.Time
+	sync.Mutex
+}
+
 func GetAuthToken() (string, error) {
+	tokenCache.Lock()
+	defer tokenCache.Unlock()
+
+	if tokenCache.Token != "" && time.Now().Before(tokenCache.ExpiresAt) {
+		return tokenCache.Token, nil
+	}
+
 	path := "/api/admin/token"
 	data := []byte(fmt.Sprintf("username=%s&password=%s", config.CLIConfig.ApiUsername, config.CLIConfig.ApiPassword))
-
 	httpClient := createHttpClient()
 	req, err := createRequest("POST", path, "")
 	if err != nil {
@@ -38,12 +51,17 @@ func GetAuthToken() (string, error) {
 		return "", fmt.Errorf("error reading auth response body: %v", err)
 	}
 
-	var tokenResponse models.AuthTokenResponse
+	var tokenResponse struct {
+		AccessToken string `json:"access_token"`
+	}
 	if err := json.Unmarshal(body, &tokenResponse); err != nil {
 		return "", fmt.Errorf("error unmarshaling auth token response: %v", err)
 	}
 
-	return tokenResponse.AccessToken, nil
+	tokenCache.Token = tokenResponse.AccessToken
+	tokenCache.ExpiresAt = time.Now().Add(12 * time.Hour)
+
+	return tokenCache.Token, nil
 }
 
 func FetchNodesStatus(token string) {
@@ -148,18 +166,9 @@ func FetchCoreStatus(token string) {
 }
 
 func FetchUsersStats(token string) {
-	path := "/api/users"
-	body, err := sendRequest(path, token)
-	if err != nil {
-		log.Println("Error making request for user stats:", err)
-		return
-	}
-
-	var usersResponse models.UsersResponse
-	if err := json.Unmarshal(body, &usersResponse); err != nil {
-		log.Println("Error unmarshaling response:", err)
-		return
-	}
+	pageSize := 250
+	offset := 0
+	totalUsersFetched := 0
 
 	location, err := time.LoadLocation(config.CLIConfig.TimeZone)
 	if err != nil {
@@ -167,25 +176,48 @@ func FetchUsersStats(token string) {
 		return
 	}
 
-	now := time.Now().In(location)
-	for _, user := range usersResponse.Users {
-		var onlineValue float64 = 0
-		if user.OnlineAt != nil {
-			onlineAt, err := time.Parse("2006-01-02T15:04:05", *user.OnlineAt)
-			if err != nil {
-				continue
-			}
-			onlineAt = onlineAt.In(location)
-			if now.Sub(onlineAt) <= time.Duration(config.CLIConfig.InactivityTime)*time.Minute {
-				onlineValue = 1
-			}
+	for {
+		path := fmt.Sprintf("/api/users?limit=%d&offset=%d", pageSize, offset)
+		body, err := sendRequest(path, token)
+		if err != nil {
+			log.Println("Error making request for user stats:", err)
+			return
 		}
 
-		metrics.UserOnline.WithLabelValues(user.Username).Set(onlineValue)
-		metrics.UserDataLimit.WithLabelValues(user.Username).Set(user.DataLimit)
-		metrics.UserUsedTraffic.WithLabelValues(user.Username).Set(user.UsedTraffic)
-		metrics.UserLifetimeUsedTraffic.WithLabelValues(user.Username).Set(user.LifetimeUsedTraffic)
-		metrics.UserExpirationDate.WithLabelValues(user.Username).Set(user.Expire)
+		var usersResponse models.UsersResponse
+		if err := json.Unmarshal(body, &usersResponse); err != nil {
+			log.Println("Error unmarshaling response:", err)
+			return
+		}
+
+		now := time.Now().In(location)
+		for _, user := range usersResponse.Users {
+			var onlineValue float64 = 0
+			if user.OnlineAt != nil {
+				onlineAt, err := time.Parse("2006-01-02T15:04:05", *user.OnlineAt)
+				if err != nil {
+					continue
+				}
+				onlineAt = onlineAt.In(location)
+				if now.Sub(onlineAt) <= time.Duration(config.CLIConfig.InactivityTime)*time.Minute {
+					onlineValue = 1
+				}
+			}
+
+			metrics.UserOnline.WithLabelValues(user.Username).Set(onlineValue)
+			metrics.UserDataLimit.WithLabelValues(user.Username).Set(user.DataLimit)
+			metrics.UserUsedTraffic.WithLabelValues(user.Username).Set(user.UsedTraffic)
+			metrics.UserLifetimeUsedTraffic.WithLabelValues(user.Username).Set(user.LifetimeUsedTraffic)
+			metrics.UserExpirationDate.WithLabelValues(user.Username).Set(user.Expire)
+		}
+
+		fetchedUsersCount := len(usersResponse.Users)
+		totalUsersFetched += fetchedUsersCount
+		if fetchedUsersCount < pageSize {
+			log.Printf("Fetched all users, total: %d", totalUsersFetched)
+			break
+		}
+		offset += pageSize
 	}
 }
 
