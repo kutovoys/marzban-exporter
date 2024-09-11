@@ -20,8 +20,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - uses: olegtarasov/get-tag@v2.1.3
-        id: tagName
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
@@ -32,4 +30,4 @@ jobs:
             GIT_TAG=${{ github.event.release.tag_name }}
           tags: |
             kutovoys/marzban-exporter:latest
-            kutovoys/marzban-exporter:${{ steps.tagName.outputs.tag }}
+            kutovoys/marzban-exporter:v0.2.3
