@@ -27,7 +27,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           build-args: |
-            GIT_TAG=${{ github.event.release.tag_name }}
+            GIT_TAG=v0.2.3
           tags: |
             kutovoys/marzban-exporter:latest
             kutovoys/marzban-exporter:v0.2.3
