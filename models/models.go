@@ -14,10 +14,9 @@ type CLI struct {
 	UpdateInterval   int         `name:"update-interval" help:"Interval for metrics update in seconds" default:"60" env:"UPDATE_INTERVAL"`
 	TimeZone         string      `name:"timezone" help:"Timezone used in the application" default:"UTC" env:"TIMEZONE"`
 	InactivityTime   int         `name:"inactivity-time" help:"Time in minutes after which a user is considered inactive" default:"2" env:"INACTIVITY_TIME"`
-	BaseURL          string      `name:"marzban-base-url" help:"Marzban panel base URL" env:"MARZBAN_BASE_URL"`
-	ApiUsername      string      `name:"marzban-username" help:"Marzban panel username" env:"MARZBAN_USERNAME" required:""`
-	ApiPassword      string      `name:"marzban-password" help:"Marzban panel password" env:"MARZBAN_PASSWORD" required:""`
-	SocketPath       string      `name:"marzban-socket" help:"Path to Marzban Unix Domain Socket" env:"MARZBAN_SOCKET"`
+	BaseURL          string      `name:"panel-base-url" help:"Panel base URL" env:"PANEL_BASE_URL"`
+	ApiUsername      string      `name:"panel-username" help:"Panel username" env:"PANEL_USERNAME" required:""`
+	ApiPassword      string      `name:"panel-password" help:"Panel password" env:"PANEL_PASSWORD" required:""`
 	Version          VersionFlag `name:"version" help:"Print version information and quit"`
 }
 
@@ -26,10 +25,11 @@ type VersionFlag string
 func (v VersionFlag) Decode(ctx *kong.DecodeContext) error { return nil }
 func (v VersionFlag) IsBool() bool                         { return true }
 func (v VersionFlag) BeforeApply(app *kong.Kong, vars kong.Vars) error {
-	fmt.Println("Marzban Exporter")
+	fmt.Println("3X-UI Exporter (Fork)")
 	fmt.Printf("Version:\t %s\n", vars["version"])
 	fmt.Printf("Commit:\t %s\n", vars["commit"])
-	fmt.Printf("GitHub: https://github.com/kutovoys/marzban-exporter\n")
+	fmt.Printf("Github (Marzban): https://github.com/kutovoys/marzban-exporter\n")
+	fmt.Printf("GitHub (3X-UI Fork): https://github.com/hteppl/3x-ui-exporter\n")
 	app.Exit(0)
 	return nil
 }
