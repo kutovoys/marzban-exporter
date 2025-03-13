@@ -13,8 +13,8 @@ var CLIConfig models.CLI
 
 func Parse(version, commit string) {
 	ctx := kong.Parse(&CLIConfig,
-		kong.Name("marzban-exporter"),
-		kong.Description("A command-line application for exporting Marzban metrics."),
+		kong.Name("x-ui-exporter"),
+		kong.Description("A command-line application for exporting 3X-UI metrics."),
 		kong.Vars{
 			"version": version,
 			"commit":  commit,
@@ -28,8 +28,8 @@ func Parse(version, commit string) {
 }
 
 func validate() error {
-	if CLIConfig.BaseURL == "" && CLIConfig.SocketPath == "" {
-		return errors.New("marzban-exporter: error: either --marzban-base-url or --marzban-socket must be provided")
+	if CLIConfig.BaseURL == "" {
+		return errors.New("x-ui-exporter: error: --panel-base-url must be provided")
 	}
 	return nil
 }
