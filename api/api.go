@@ -1,263 +1,141 @@
 package api
 
 import (
-	"bytes"
-	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
 	"marzban-exporter/config"
 	"marzban-exporter/metrics"
 	"marzban-exporter/models"
-	"net"
 	"net/http"
+	"net/url"
+	"strings"
 	"sync"
 	"time"
 )
 
-var tokenCache struct {
-	Token     string
+var cookieCache struct {
+	Cookie    http.Cookie
 	ExpiresAt time.Time
 	sync.Mutex
 }
 
-func GetAuthToken() (string, error) {
-	tokenCache.Lock()
-	defer tokenCache.Unlock()
+func createHttpClient() *http.Client {
+	return &http.Client{Timeout: 30 * time.Second}
+}
 
-	if tokenCache.Token != "" && time.Now().Before(tokenCache.ExpiresAt) {
-		return tokenCache.Token, nil
+// Auth logic partially was taken from the client3xui module
+// Refs:
+//  - https://github.com/sausagenoods
+//  - https://github.com/digilolnet/client3xui/blob/9ee70f528c9b5f93fd29e024e3761da5f782f594/login.go#L35
+
+func GetAuthToken() (*http.Cookie, error) {
+	cookieCache.Lock()
+	defer cookieCache.Unlock()
+
+	if cookieCache.Cookie.Name != "" && time.Now().Before(cookieCache.ExpiresAt) {
+		return &cookieCache.Cookie, nil
 	}
 
-	path := "/api/admin/token"
-	data := []byte(fmt.Sprintf("username=%s&password=%s", config.CLIConfig.ApiUsername, config.CLIConfig.ApiPassword))
-	httpClient := createHttpClient()
-	req, err := createRequest("POST", path, "")
+	path := config.CLIConfig.BaseURL + "/login"
+	data := url.Values{
+		"username": {config.CLIConfig.ApiUsername},
+		"password": {config.CLIConfig.ApiPassword},
+	}
+
+	req, err := http.NewRequest("POST", path, strings.NewReader(data.Encode()))
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	req.Body = io.NopCloser(bytes.NewBuffer(data))
 
-	resp, err := httpClient.Do(req)
+	client := createHttpClient()
+	resp, err := client.Do(req)
 	if err != nil {
-		return "", fmt.Errorf("error making auth request: %v", err)
+		return nil, err
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return "", fmt.Errorf("error reading auth response body: %v", err)
+		return nil, err
 	}
 
-	var tokenResponse struct {
-		AccessToken string `json:"access_token"`
+	var loginResp struct {
+		Success bool   `json:"success"`
+		Msg     string `json:"msg"`
 	}
-	if err := json.Unmarshal(body, &tokenResponse); err != nil {
-		return "", fmt.Errorf("error unmarshaling auth token response: %v", err)
-	}
-
-	tokenCache.Token = tokenResponse.AccessToken
-	tokenCache.ExpiresAt = time.Now().Add(12 * time.Hour)
-
-	return tokenCache.Token, nil
-}
-
-func FetchNodesStatus(token string) {
-	path := "/api/nodes"
-	body, err := sendRequest(path, token)
-	if err != nil {
-		log.Println("Error making request for nodes status:", err)
-		return
+	if err := json.Unmarshal(body, &loginResp); err != nil {
+		return nil, err
 	}
 
-	var nodes []models.Node
-	if err := json.Unmarshal(body, &nodes); err != nil {
-		log.Println("Error unmarshaling response:", err)
-		return
+	if !loginResp.Success {
+		return nil, errors.New(loginResp.Msg)
 	}
 
-	for _, node := range nodes {
-		status := 0.0
-		if node.Status == "connected" {
-			status = 1.0
+	if resp.StatusCode != http.StatusOK {
+		return nil, errors.New("authentication failed")
+	}
+
+	for _, cookie := range resp.Cookies() {
+		if cookie.Name == "3x-ui" {
+			cookieCache.Cookie = *cookie
+			cookieCache.ExpiresAt = cookie.Expires.Add(-6 * time.Hour)
 		}
-		metrics.NodesStatus.WithLabelValues(fmt.Sprintf("%d", node.ID), node.Name).Set(status)
 	}
+
+	if cookieCache.Cookie.Name == "" {
+		return nil, errors.New("no cookies found in auth response")
+	}
+
+	return &cookieCache.Cookie, nil
 }
 
-func FetchNodesUsage(token string) {
-	path := "/api/nodes/usage"
-	body, err := sendRequest(path, token)
-	if err != nil {
-		log.Println("Error making request for nodes usage:", err)
-		return
-	}
-
-	var usageResponse models.UsageResponse
-	if err := json.Unmarshal(body, &usageResponse); err != nil {
-		log.Println("Error unmarshaling response:", err)
-		return
-	}
-
-	for _, usage := range usageResponse.Usages {
-		id := "0"
-		if usage.NodeID != nil {
-			id = fmt.Sprintf("%d", *usage.NodeID)
-		}
-		metrics.NodesUplink.WithLabelValues(id, usage.NodeName).Set(float64(usage.Uplink))
-		metrics.NodesDownlink.WithLabelValues(id, usage.NodeName).Set(float64(usage.Downlink))
-	}
-}
-
-func FetchSystemStats(token string) {
-	path := "/api/system"
-	body, err := sendRequest(path, token)
+func FetchOnlineUsersCount(cookie *http.Cookie) {
+	body, err := sendRequest("/panel/inbound/onlines", "POST", cookie)
 	if err != nil {
 		log.Println("Error making request for system stats:", err)
 		return
 	}
 
-	var stats models.SystemStats
-	if err := json.Unmarshal(body, &stats); err != nil {
+	var response models.ObjectResponse
+	if err := json.Unmarshal(body, &response); err != nil {
 		log.Println("Error unmarshaling response:", err)
 		return
 	}
 
-	metrics.MemTotal.Set(stats.MemTotal)
-	metrics.MemUsed.Set(stats.MemUsed)
-	metrics.CpuCores.Set(stats.CpuCores)
-	metrics.CpuUsage.Set(stats.CpuUsage)
-	metrics.TotalUser.Set(stats.TotalUser)
-	metrics.UsersActive.Set(stats.UsersActive)
-	metrics.IncomingBandwidth.Set(stats.IncomingBandwidth)
-	metrics.OutgoingBandwidth.Set(stats.OutgoingBandwidth)
-	metrics.IncomingBandwidthSpeed.Set(stats.IncomingBandwidthSpeed)
-	metrics.OutgoingBandwidthSpeed.Set(stats.OutgoingBandwidthSpeed)
-}
-
-func FetchCoreStatus(token string) {
-	path := "/api/core"
-	body, err := sendRequest(path, token)
+	var arr []json.RawMessage
+	err = json.Unmarshal(response.Obj, &arr)
 	if err != nil {
-		log.Println("Error making request for core status:", err)
+		log.Println("Error converting Obj as array:", err)
 		return
 	}
 
-	var coreResponse struct {
-		Version       string `json:"version"`
-		Started       bool   `json:"started"`
-		LogsWebsocket string `json:"logs_websocket"`
-	}
-	if err := json.Unmarshal(body, &coreResponse); err != nil {
-		log.Println("Error unmarshaling core status response:", err)
-		return
-	}
-
-	var startedValue float64
-	if coreResponse.Started {
-		startedValue = 1.0
-	} else {
-		startedValue = 0.0
-	}
-
-	metrics.CoreStarted.WithLabelValues(coreResponse.Version).Set(startedValue)
+	metrics.OnlineUsersCount.Set(float64(len(arr)))
 }
 
-func FetchUsersStats(token string) {
-	pageSize := 250
-	offset := 0
-	totalUsersFetched := 0
-
-	location, err := time.LoadLocation(config.CLIConfig.TimeZone)
-	if err != nil {
-		log.Println("Error setting timezone:", err)
-		return
-	}
-
-	for {
-		path := fmt.Sprintf("/api/users?limit=%d&offset=%d", pageSize, offset)
-		body, err := sendRequest(path, token)
-		if err != nil {
-			log.Println("Error making request for user stats:", err)
-			return
-		}
-
-		var usersResponse models.UsersResponse
-		if err := json.Unmarshal(body, &usersResponse); err != nil {
-			log.Println("Error unmarshaling response:", err)
-			return
-		}
-
-		now := time.Now().In(location)
-		for _, user := range usersResponse.Users {
-			var onlineValue float64 = 0
-			if user.OnlineAt != nil {
-				onlineAt, err := time.Parse("2006-01-02T15:04:05", *user.OnlineAt)
-				if err != nil {
-					continue
-				}
-				onlineAt = onlineAt.In(location)
-				if now.Sub(onlineAt) <= time.Duration(config.CLIConfig.InactivityTime)*time.Minute {
-					onlineValue = 1
-				}
-			}
-
-			metrics.UserOnline.WithLabelValues(user.Username).Set(onlineValue)
-			metrics.UserDataLimit.WithLabelValues(user.Username).Set(user.DataLimit)
-			metrics.UserUsedTraffic.WithLabelValues(user.Username).Set(user.UsedTraffic)
-			metrics.UserLifetimeUsedTraffic.WithLabelValues(user.Username).Set(user.LifetimeUsedTraffic)
-			metrics.UserExpirationDate.WithLabelValues(user.Username).Set(user.Expire)
-		}
-
-		fetchedUsersCount := len(usersResponse.Users)
-		totalUsersFetched += fetchedUsersCount
-		if fetchedUsersCount < pageSize {
-			log.Printf("Fetched all users, total: %d", totalUsersFetched)
-			break
-		}
-		offset += pageSize
-	}
-}
-
-func createHttpClient() *http.Client {
-	if config.CLIConfig.SocketPath != "" {
-		return &http.Client{
-			Transport: &http.Transport{
-				DialContext: func(ctx context.Context, _, _ string) (net.Conn, error) {
-					return net.Dial("unix", config.CLIConfig.SocketPath)
-				},
-			},
-			Timeout: 30 * time.Second,
-		}
-	}
-	return &http.Client{Timeout: 30 * time.Second}
-}
-
-func createRequest(method, path, token string) (*http.Request, error) {
+func createRequest(method, path string, cookie *http.Cookie) (*http.Request, error) {
 	url := fmt.Sprintf("%s%s", config.CLIConfig.BaseURL, path)
-	if config.CLIConfig.SocketPath != "" {
-		url = "http://unix" + path
-	}
 
 	req, err := http.NewRequest(method, url, nil)
 	if err != nil {
 		return nil, err
 	}
+
 	req.Header.Set("Accept", "application/json")
-	req.Header.Set("Authorization", "Bearer "+token)
+	req.AddCookie(cookie)
 	return req, nil
 }
 
-func sendRequest(path, token string) ([]byte, error) {
-	httpClient := createHttpClient()
-	req, err := createRequest("GET", path, token)
+func sendRequest(path, method string, cookie *http.Cookie) ([]byte, error) {
+	req, err := createRequest(method, path, cookie)
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := httpClient.Do(req)
+	resp, err := createHttpClient().Do(req)
 	if err != nil {
 		return nil, err
 	}
