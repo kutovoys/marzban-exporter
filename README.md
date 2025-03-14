@@ -47,12 +47,12 @@ Inbounds metrics (params: id, remark):
 
 System metrics (version param for x_ui_xray_version):
 
-| Name                 | Description                  |
-|----------------------|------------------------------|
-| `x_ui_xray_version`  | XRay version used by 3X-UI". |
-| `x_ui_panel_threads` | 3X-UI panel threads.         |
-| `x_ui_panel_memory`  | 3X-UI panel memory usage.    |
-| `x_ui_panel_uptime`  | 3X-UI panel uptime.          |
+| Name                 | Description                 |
+|----------------------|-----------------------------|
+| `x_ui_xray_version`  | XRay version used by 3X-UI. |
+| `x_ui_panel_threads` | 3X-UI panel threads.        |
+| `x_ui_panel_memory`  | 3X-UI panel memory usage.   |
+| `x_ui_panel_uptime`  | 3X-UI panel uptime.         |
 
 ## Configuration
 
