@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -92,9 +93,9 @@ func GetAuthToken() (*http.Cookie, error) {
 }
 
 func FetchOnlineUsersCount(cookie *http.Cookie) {
-	body, err := sendRequest("/panel/inbound/onlines", "POST", cookie)
+	body, err := sendRequest("/panel/inbound/onlines", http.MethodPost, cookie)
 	if err != nil {
-		log.Println("Error making request for system stats:", err)
+		log.Println("Error making request for inbound onlines:", err)
 		return
 	}
 
@@ -115,7 +116,7 @@ func FetchOnlineUsersCount(cookie *http.Cookie) {
 }
 
 func FetchServerStatus(cookie *http.Cookie) {
-	body, err := sendRequest("/server/status", "POST", cookie)
+	body, err := sendRequest("/server/status", http.MethodPost, cookie)
 	if err != nil {
 		log.Println("Error making request for system stats:", err)
 		return
@@ -127,7 +128,46 @@ func FetchServerStatus(cookie *http.Cookie) {
 		return
 	}
 
+	// XRay metrics
 	metrics.XrayVersion.WithLabelValues(response.Obj.Xray.Version).Set(1)
+	// Panel metrics
+	metrics.PanelThreads.Set(float64(response.Obj.AppStats.Threads))
+	metrics.PanelMemory.Set(float64(response.Obj.AppStats.Mem))
+	metrics.PanelUptime.Set(float64(response.Obj.AppStats.Uptime))
+}
+
+func FetchInboundsList(cookie *http.Cookie) {
+	body, err := sendRequest("/panel/api/inbounds/list", http.MethodGet, cookie)
+	if err != nil {
+		log.Println("Error making request for inbounds list:", err)
+		return
+	}
+
+	var response models.GetInboundsResponse
+	if err := json.Unmarshal(body, &response); err != nil {
+		log.Println("Error unmarshaling response:", err)
+		return
+	}
+
+	for _, inbound := range response.Obj {
+		metrics.InboundUp.WithLabelValues(
+			strconv.Itoa(inbound.ID), inbound.Remark,
+		).Set(float64(inbound.Up))
+
+		metrics.InboundDown.WithLabelValues(
+			strconv.Itoa(inbound.ID), inbound.Remark,
+		).Set(float64(inbound.Down))
+
+		for _, client := range inbound.ClientStats {
+			metrics.ClientUp.WithLabelValues(
+				strconv.Itoa(client.ID), client.Email,
+			).Set(float64(client.Up))
+
+			metrics.ClientDown.WithLabelValues(
+				strconv.Itoa(client.ID), client.Email,
+			).Set(float64(client.Down))
+		}
+	}
 }
 
 func createRequest(method, path string, cookie *http.Cookie) (*http.Request, error) {

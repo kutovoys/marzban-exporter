@@ -23,7 +23,11 @@ func init() { //
 	prometheus.MustRegister(
 		// User-related metrics
 		metrics.OnlineUsersCount,
-
+		// Inbounds-related metrics
+		metrics.InboundUp,
+		metrics.InboundDown,
+		metrics.ClientUp,
+		metrics.ClientDown,
 		// System-related metrics
 		metrics.XrayVersion,
 	)
@@ -65,9 +69,13 @@ func main() {
 		api.FetchOnlineUsersCount(token)
 		log.Print("Finished collecting UsersStats metrics")
 
-		log.Print("Collecting ServerStatus metrics")
+		log.Print("Collecting Server and Panel metrics")
 		api.FetchServerStatus(token)
-		log.Print("Finished collecting ServerStatus metrics")
+		log.Print("Finished collecting Server and Panel metrics")
+
+		log.Print("Collecting Inbounds metrics")
+		api.FetchInboundsList(token)
+		log.Print("Finished collecting Inbounds metrics")
 
 		log.Print("Finished all metric collection")
 	})
