@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 	"x-ui-exporter/models"
 
 	"github.com/alecthomas/kong"
@@ -27,6 +28,13 @@ func Parse(version, commit string) {
 	}
 }
 
+func removeTrailingSlash(s string) string {
+	if strings.HasSuffix(s, "/") {
+		return strings.TrimSuffix(s, "/")
+	}
+	return s
+}
+
 func validate() error {
 	if CLIConfig.BaseURL == "" {
 		return errors.New("x-ui-exporter: error: --panel-base-url must be provided")
@@ -37,5 +45,6 @@ func validate() error {
 	if CLIConfig.ApiPassword == "" {
 		return errors.New("x-ui-exporter: error: --panel-password must be provided")
 	}
+	CLIConfig.BaseURL = removeTrailingSlash(CLIConfig.BaseURL)
 	return nil
 }
