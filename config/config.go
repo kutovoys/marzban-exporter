@@ -31,5 +31,11 @@ func validate() error {
 	if CLIConfig.BaseURL == "" {
 		return errors.New("x-ui-exporter: error: --panel-base-url must be provided")
 	}
+	if CLIConfig.ApiUsername == "" {
+		return errors.New("x-ui-exporter: error: --panel-username must be provided")
+	}
+	if CLIConfig.ApiPassword == "" {
+		return errors.New("x-ui-exporter: error: --panel-password must be provided")
+	}
 	return nil
 }
