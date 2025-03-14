@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/alecthomas/kong"
@@ -13,11 +14,9 @@ type CLI struct {
 	MetricsPassword  string      `name:"metrics-password" help:"Password for metrics if protected by basic auth" default:"MetricsVeryHardPassword" env:"METRICS_PASSWORD"`
 	UpdateInterval   int         `name:"update-interval" help:"Interval for metrics update in seconds" default:"60" env:"UPDATE_INTERVAL"`
 	TimeZone         string      `name:"timezone" help:"Timezone used in the application" default:"UTC" env:"TIMEZONE"`
-	InactivityTime   int         `name:"inactivity-time" help:"Time in minutes after which a user is considered inactive" default:"2" env:"INACTIVITY_TIME"`
-	BaseURL          string      `name:"marzban-base-url" help:"Marzban panel base URL" env:"MARZBAN_BASE_URL"`
-	ApiUsername      string      `name:"marzban-username" help:"Marzban panel username" env:"MARZBAN_USERNAME" required:""`
-	ApiPassword      string      `name:"marzban-password" help:"Marzban panel password" env:"MARZBAN_PASSWORD" required:""`
-	SocketPath       string      `name:"marzban-socket" help:"Path to Marzban Unix Domain Socket" env:"MARZBAN_SOCKET"`
+	BaseURL          string      `name:"panel-base-url" help:"Panel base URL" env:"PANEL_BASE_URL"`
+	ApiUsername      string      `name:"panel-username" help:"Panel username" env:"PANEL_USERNAME" required:""`
+	ApiPassword      string      `name:"panel-password" help:"Panel password" env:"PANEL_PASSWORD" required:""`
 	Version          VersionFlag `name:"version" help:"Print version information and quit"`
 }
 
@@ -26,75 +25,78 @@ type VersionFlag string
 func (v VersionFlag) Decode(ctx *kong.DecodeContext) error { return nil }
 func (v VersionFlag) IsBool() bool                         { return true }
 func (v VersionFlag) BeforeApply(app *kong.Kong, vars kong.Vars) error {
-	fmt.Println("Marzban Exporter")
+	fmt.Println("3X-UI Exporter (Fork)")
 	fmt.Printf("Version:\t %s\n", vars["version"])
 	fmt.Printf("Commit:\t %s\n", vars["commit"])
-	fmt.Printf("GitHub: https://github.com/kutovoys/marzban-exporter\n")
+	fmt.Printf("Github (Marzban): https://github.com/kutovoys/marzban-exporter\n")
+	fmt.Printf("GitHub (3X-UI Fork): https://github.com/hteppl/3x-ui-exporter\n")
 	app.Exit(0)
 	return nil
 }
 
-type AuthTokenResponse struct {
-	AccessToken string `json:"access_token"`
+type LoginResponse struct {
+	Success bool   `json:"success"`
+	Msg     string `json:"msg"`
 }
 
-type Node struct {
-	Name      string  `json:"name"`
-	Address   string  `json:"address"`
-	ID        int     `json:"id"`
-	Status    string  `json:"status"`
-	UsageCoef float64 `json:"usage_coefficient"`
-	XrayVer   string  `json:"xray_version"`
+type ObjectResponse struct {
+	Success bool            `json:"success"`
+	Msg     string          `json:"msg"`
+	Obj     json.RawMessage `json:"obj"`
 }
 
-type NodeUsage struct {
-	NodeID   *int   `json:"node_id"`
-	NodeName string `json:"node_name"`
-	Uplink   int64  `json:"uplink"`
-	Downlink int64  `json:"downlink"`
-}
+type ProcessState string
 
-type SystemStats struct {
-	Version                string  `json:"version"`
-	MemTotal               float64 `json:"mem_total"`
-	MemUsed                float64 `json:"mem_used"`
-	CpuCores               float64 `json:"cpu_cores"`
-	CpuUsage               float64 `json:"cpu_usage"`
-	TotalUser              float64 `json:"total_user"`
-	UsersActive            float64 `json:"users_active"`
-	IncomingBandwidth      float64 `json:"incoming_bandwidth"`
-	OutgoingBandwidth      float64 `json:"outgoing_bandwidth"`
-	IncomingBandwidthSpeed float64 `json:"incoming_bandwidth_speed"`
-	OutgoingBandwidthSpeed float64 `json:"outgoing_bandwidth_speed"`
-}
+const (
+	Running ProcessState = "running"
+	Stop    ProcessState = "stop"
+	Error   ProcessState = "error"
+)
 
-type User struct {
-	Proxies                map[string]interface{} `json:"proxies"`
-	Expire                 float64                `json:"expire"`
-	DataLimit              float64                `json:"data_limit"`
-	DataLimitResetStrategy string                 `json:"data_limit_reset_strategy"`
-	Inbounds               map[string][]string    `json:"inbounds"`
-	Note                   string                 `json:"note"`
-	SubUpdatedAt           string                 `json:"sub_updated_at"`
-	SubLastUserAgent       string                 `json:"sub_last_user_agent"`
-	OnlineAt               *string                `json:"online_at"`
-	OnHoldExpireDuration   *string                `json:"on_hold_expire_duration"`
-	OnHoldTimeout          *string                `json:"on_hold_timeout"`
-	Username               string                 `json:"username"`
-	Status                 string                 `json:"status"`
-	UsedTraffic            float64                `json:"used_traffic"`
-	LifetimeUsedTraffic    float64                `json:"lifetime_used_traffic"`
-	CreatedAt              string                 `json:"created_at"`
-	Links                  []string               `json:"links"`
-	SubscriptionUrl        string                 `json:"subscription_url"`
-	ExcludedInbounds       map[string][]string    `json:"excluded_inbounds"`
-}
-
-type UsersResponse struct {
-	Users []User `json:"users"`
-	Total int    `json:"total"`
-}
-
-type UsageResponse struct {
-	Usages []NodeUsage `json:"usages"`
+type ServerStatusResponse struct {
+	Success bool   `json:"success"`
+	Msg     string `json:"msg"`
+	Obj     *struct {
+		Cpu         float64 `json:"cpu"`
+		CpuCores    int     `json:"cpuCores"`
+		CpuSpeedMhz float64 `json:"cpuSpeedMhz"`
+		Mem         struct {
+			Current uint64 `json:"current"`
+			Total   uint64 `json:"total"`
+		} `json:"mem"`
+		Swap struct {
+			Current uint64 `json:"current"`
+			Total   uint64 `json:"total"`
+		} `json:"swap"`
+		Disk struct {
+			Current uint64 `json:"current"`
+			Total   uint64 `json:"total"`
+		} `json:"disk"`
+		Xray struct {
+			State    ProcessState `json:"state"`
+			ErrorMsg string       `json:"errorMsg"`
+			Version  string       `json:"version"`
+		} `json:"xray"`
+		Uptime   uint64    `json:"uptime"`
+		Loads    []float64 `json:"loads"`
+		TcpCount int       `json:"tcpCount"`
+		UdpCount int       `json:"udpCount"`
+		NetIO    struct {
+			Up   uint64 `json:"up"`
+			Down uint64 `json:"down"`
+		} `json:"netIO"`
+		NetTraffic struct {
+			Sent uint64 `json:"sent"`
+			Recv uint64 `json:"recv"`
+		} `json:"netTraffic"`
+		PublicIP struct {
+			IPv4 string `json:"ipv4"`
+			IPv6 string `json:"ipv6"`
+		} `json:"publicIP"`
+		AppStats struct {
+			Threads uint32 `json:"threads"`
+			Mem     uint64 `json:"mem"`
+			Uptime  uint64 `json:"uptime"`
+		} `json:"appStats"`
+	} `json:"obj"`
 }
