@@ -3,11 +3,11 @@ package main
 import (
 	"fmt"
 	"log"
-	"marzban-exporter/api"
-	"marzban-exporter/config"
-	"marzban-exporter/metrics"
 	"net/http"
 	"time"
+	"x-ui-exporter/api"
+	"x-ui-exporter/config"
+	"x-ui-exporter/metrics"
 
 	"github.com/go-co-op/gocron"
 	"github.com/prometheus/client_golang/prometheus"

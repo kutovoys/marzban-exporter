@@ -14,7 +14,6 @@ type CLI struct {
 	MetricsPassword  string      `name:"metrics-password" help:"Password for metrics if protected by basic auth" default:"MetricsVeryHardPassword" env:"METRICS_PASSWORD"`
 	UpdateInterval   int         `name:"update-interval" help:"Interval for metrics update in seconds" default:"60" env:"UPDATE_INTERVAL"`
 	TimeZone         string      `name:"timezone" help:"Timezone used in the application" default:"UTC" env:"TIMEZONE"`
-	InactivityTime   int         `name:"inactivity-time" help:"Time in minutes after which a user is considered inactive" default:"2" env:"INACTIVITY_TIME"`
 	BaseURL          string      `name:"panel-base-url" help:"Panel base URL" env:"PANEL_BASE_URL"`
 	ApiUsername      string      `name:"panel-username" help:"Panel username" env:"PANEL_USERNAME" required:""`
 	ApiPassword      string      `name:"panel-password" help:"Panel password" env:"PANEL_PASSWORD" required:""`

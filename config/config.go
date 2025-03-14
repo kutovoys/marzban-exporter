@@ -3,8 +3,8 @@ package config
 import (
 	"errors"
 	"fmt"
-	"marzban-exporter/models"
 	"os"
+	"x-ui-exporter/models"
 
 	"github.com/alecthomas/kong"
 )

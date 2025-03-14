@@ -6,14 +6,14 @@ var (
 	// User-related metrics
 	OnlineUsersCount = prometheus.NewGauge(
 		prometheus.GaugeOpts{
-			Name: "total_online_users",
+			Name: "x_ui_total_online_users",
 			Help: "Total number of online users",
 		},
 	)
 	// System-related metrics
 	XrayVersion = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Name: "xray_version",
+			Name: "x_ui_xray_version",
 			Help: "XRay core version",
 		},
 		[]string{"version"},

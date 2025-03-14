@@ -6,14 +6,14 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"marzban-exporter/config"
-	"marzban-exporter/metrics"
-	"marzban-exporter/models"
 	"net/http"
 	"net/url"
 	"strings"
 	"sync"
 	"time"
+	"x-ui-exporter/config"
+	"x-ui-exporter/metrics"
+	"x-ui-exporter/models"
 )
 
 var cookieCache struct {

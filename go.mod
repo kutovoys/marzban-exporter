@@ -1,4 +1,4 @@
-module marzban-exporter
+module x-ui-exporter
 
 go 1.21
 
