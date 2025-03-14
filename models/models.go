@@ -45,3 +45,59 @@ type ObjectResponse struct {
 	Msg     string          `json:"msg"`
 	Obj     json.RawMessage `json:"obj"`
 }
+
+type ProcessState string
+
+const (
+	Running ProcessState = "running"
+	Stop    ProcessState = "stop"
+	Error   ProcessState = "error"
+)
+
+type ServerStatusResponse struct {
+	Success bool   `json:"success"`
+	Msg     string `json:"msg"`
+	Obj     *struct {
+		Cpu         float64 `json:"cpu"`
+		CpuCores    int     `json:"cpuCores"`
+		CpuSpeedMhz float64 `json:"cpuSpeedMhz"`
+		Mem         struct {
+			Current uint64 `json:"current"`
+			Total   uint64 `json:"total"`
+		} `json:"mem"`
+		Swap struct {
+			Current uint64 `json:"current"`
+			Total   uint64 `json:"total"`
+		} `json:"swap"`
+		Disk struct {
+			Current uint64 `json:"current"`
+			Total   uint64 `json:"total"`
+		} `json:"disk"`
+		Xray struct {
+			State    ProcessState `json:"state"`
+			ErrorMsg string       `json:"errorMsg"`
+			Version  string       `json:"version"`
+		} `json:"xray"`
+		Uptime   uint64    `json:"uptime"`
+		Loads    []float64 `json:"loads"`
+		TcpCount int       `json:"tcpCount"`
+		UdpCount int       `json:"udpCount"`
+		NetIO    struct {
+			Up   uint64 `json:"up"`
+			Down uint64 `json:"down"`
+		} `json:"netIO"`
+		NetTraffic struct {
+			Sent uint64 `json:"sent"`
+			Recv uint64 `json:"recv"`
+		} `json:"netTraffic"`
+		PublicIP struct {
+			IPv4 string `json:"ipv4"`
+			IPv6 string `json:"ipv6"`
+		} `json:"publicIP"`
+		AppStats struct {
+			Threads uint32 `json:"threads"`
+			Mem     uint64 `json:"mem"`
+			Uptime  uint64 `json:"uptime"`
+		} `json:"appStats"`
+	} `json:"obj"`
+}

@@ -26,10 +26,8 @@ func createHttpClient() *http.Client {
 	return &http.Client{Timeout: 30 * time.Second}
 }
 
-// Auth logic partially was taken from the client3xui module
-// Refs:
-//  - https://github.com/sausagenoods
-//  - https://github.com/digilolnet/client3xui/blob/9ee70f528c9b5f93fd29e024e3761da5f782f594/login.go#L35
+// API logic partially was taken from the client3xui module
+// https://github.com/digilolnet/client3xui
 
 func GetAuthToken() (*http.Cookie, error) {
 	cookieCache.Lock()
@@ -114,6 +112,22 @@ func FetchOnlineUsersCount(cookie *http.Cookie) {
 	}
 
 	metrics.OnlineUsersCount.Set(float64(len(arr)))
+}
+
+func FetchServerStatus(cookie *http.Cookie) {
+	body, err := sendRequest("/server/status", "POST", cookie)
+	if err != nil {
+		log.Println("Error making request for system stats:", err)
+		return
+	}
+
+	var response models.ServerStatusResponse
+	if err := json.Unmarshal(body, &response); err != nil {
+		log.Println("Error unmarshaling response:", err)
+		return
+	}
+
+	metrics.XrayVersion.WithLabelValues(response.Obj.Xray.Version).Set(1)
 }
 
 func createRequest(method, path string, cookie *http.Cookie) (*http.Request, error) {

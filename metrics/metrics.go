@@ -10,4 +10,12 @@ var (
 			Help: "Total number of online users",
 		},
 	)
+	// System-related metrics
+	XrayVersion = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "xray_version",
+			Help: "XRay core version",
+		},
+		[]string{"version"},
+	)
 )
