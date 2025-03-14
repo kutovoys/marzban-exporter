@@ -14,26 +14,26 @@ var (
 	InboundUp = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name: "x_ui_inbound_up_bytes",
-			Help: "Total uploaded bytes per inbound.",
+			Help: "Total uploaded bytes per inbound",
 		}, []string{"id", "remark"},
 	)
 	InboundDown = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name: "x_ui_inbound_down_bytes",
-			Help: "Total downloaded bytes per inbound.",
+			Help: "Total downloaded bytes per inbound",
 		}, []string{"id", "remark"},
 	)
 	// Client-related metrics
 	ClientUp = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name: "x_ui_client_up_bytes",
-			Help: "Total uploaded bytes per client.",
+			Help: "Total uploaded bytes per client",
 		}, []string{"id", "email"},
 	)
 	ClientDown = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name: "x_ui_client_down_bytes",
-			Help: "Total downloaded bytes per client.",
+			Help: "Total downloaded bytes per client",
 		}, []string{"id", "email"},
 	)
 	// System-related metrics

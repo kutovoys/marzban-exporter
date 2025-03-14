@@ -15,12 +15,44 @@ the Prometheus monitoring system.
 
 ## Metrics
 
-Below is a table of the metrics provided by 3X-UI Metrics Exporter:
+Below is a table of the metrics provided by 3X-UI Metrics Exporter.
+
+### Users
+
+Users metrics, such as online:
 
 | Name                      | Description                   |
 |---------------------------|-------------------------------|
 | `x_ui_total_online_users` | Total number of online users. |
-| `x_ui_xray_version`       | XRay version used by 3X-UI.   |
+
+### Clients
+
+Clients metrics (params: id, email):
+
+| Name                     | Description                        |
+|--------------------------|------------------------------------|
+| `x_ui_client_up_bytes`   | Total uploaded bytes per client.   |
+| `x_ui_client_down_bytes` | Total downloaded bytes per client. |
+
+### Inbounds
+
+Inbounds metrics (params: id, remark):
+
+| Name                      | Description                         |
+|---------------------------|-------------------------------------|
+| `x_ui_inbound_up_bytes`   | Total uploaded bytes per inbound.   |
+| `x_ui_inbound_down_bytes` | Total downloaded bytes per inbound. |
+
+### System
+
+System metrics (version param for x_ui_xray_version):
+
+| Name                 | Description                  |
+|----------------------|------------------------------|
+| `x_ui_xray_version`  | XRay version used by 3X-UI". |
+| `x_ui_panel_threads` | 3X-UI panel threads.         |
+| `x_ui_panel_memory`  | 3X-UI panel memory usage.    |
+| `x_ui_panel_uptime`  | 3X-UI panel uptime.          |
 
 ## Configuration
 
