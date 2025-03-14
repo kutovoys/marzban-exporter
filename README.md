@@ -27,7 +27,7 @@ Users metrics, such as online:
 
 ### Clients
 
-Clients metrics (params: id, email):
+Clients metrics (params: `id`, `email`):
 
 | Name                     | Description                        |
 |--------------------------|------------------------------------|
@@ -36,7 +36,7 @@ Clients metrics (params: id, email):
 
 ### Inbounds
 
-Inbounds metrics (params: id, remark):
+Inbounds metrics (params: `id`, `remark`):
 
 | Name                      | Description                         |
 |---------------------------|-------------------------------------|
@@ -45,7 +45,7 @@ Inbounds metrics (params: id, remark):
 
 ### System
 
-System metrics (version param for x_ui_xray_version):
+System metrics (`version` param for `x_ui_xray_version`):
 
 | Name                 | Description                 |
 |----------------------|-----------------------------|
