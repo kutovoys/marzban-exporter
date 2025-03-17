@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/digilolnet/client3xui"
 	"io"
 	"log"
 	"net/http"
@@ -14,8 +15,10 @@ import (
 	"time"
 	"x-ui-exporter/config"
 	"x-ui-exporter/metrics"
-	"x-ui-exporter/models"
 )
+
+// API logic partially was taken from the client3xui module
+// https://github.com/digilolnet/client3xui
 
 var cookieCache struct {
 	Cookie    http.Cookie
@@ -26,9 +29,6 @@ var cookieCache struct {
 func createHttpClient() *http.Client {
 	return &http.Client{Timeout: 30 * time.Second}
 }
-
-// API logic partially was taken from the client3xui module
-// https://github.com/digilolnet/client3xui
 
 func GetAuthToken() (*http.Cookie, error) {
 	cookieCache.Lock()
@@ -99,7 +99,7 @@ func FetchOnlineUsersCount(cookie *http.Cookie) {
 		return
 	}
 
-	var response models.ObjectResponse
+	var response client3xui.ApiResponse
 	if err := json.Unmarshal(body, &response); err != nil {
 		log.Println("Error unmarshaling response:", err)
 		return
@@ -122,14 +122,21 @@ func FetchServerStatus(cookie *http.Cookie) {
 		return
 	}
 
-	var response models.ServerStatusResponse
+	var response client3xui.ServerStatusResponse
 	if err := json.Unmarshal(body, &response); err != nil {
 		log.Println("Error unmarshaling response:", err)
 		return
 	}
 
 	// XRay metrics
-	metrics.XrayVersion.WithLabelValues(response.Obj.Xray.Version).Set(1)
+	XrayVersion := strings.ReplaceAll(response.Obj.Xray.Version, ".", "")
+	num, err := strconv.ParseFloat(XrayVersion, 64)
+	if err != nil {
+		fmt.Println("Error converting XrayVersion:", err)
+		return
+	}
+	metrics.XrayVersion.WithLabelValues(response.Obj.Xray.Version).Set(num)
+
 	// Panel metrics
 	metrics.PanelThreads.Set(float64(response.Obj.AppStats.Threads))
 	metrics.PanelMemory.Set(float64(response.Obj.AppStats.Mem))
@@ -143,7 +150,7 @@ func FetchInboundsList(cookie *http.Cookie) {
 		return
 	}
 
-	var response models.GetInboundsResponse
+	var response client3xui.GetInboundsResponse
 	if err := json.Unmarshal(body, &response); err != nil {
 		log.Println("Error unmarshaling response:", err)
 		return

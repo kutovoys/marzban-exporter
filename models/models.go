@@ -1,7 +1,6 @@
 package models
 
 import (
-	"encoding/json"
 	"fmt"
 
 	"github.com/alecthomas/kong"
@@ -32,107 +31,4 @@ func (v VersionFlag) BeforeApply(app *kong.Kong, vars kong.Vars) error {
 	fmt.Printf("GitHub (3X-UI Fork): https://github.com/hteppl/3x-ui-exporter\n")
 	app.Exit(0)
 	return nil
-}
-
-type LoginResponse struct {
-	Success bool   `json:"success"`
-	Msg     string `json:"msg"`
-}
-
-type ObjectResponse struct {
-	Success bool            `json:"success"`
-	Msg     string          `json:"msg"`
-	Obj     json.RawMessage `json:"obj"`
-}
-
-type ProcessState string
-
-const (
-	Running ProcessState = "running"
-	Stop    ProcessState = "stop"
-	Error   ProcessState = "error"
-)
-
-type ServerStatusResponse struct {
-	Success bool   `json:"success"`
-	Msg     string `json:"msg"`
-	Obj     *struct {
-		Cpu         float64 `json:"cpu"`
-		CpuCores    int     `json:"cpuCores"`
-		CpuSpeedMhz float64 `json:"cpuSpeedMhz"`
-		Mem         struct {
-			Current uint64 `json:"current"`
-			Total   uint64 `json:"total"`
-		} `json:"mem"`
-		Swap struct {
-			Current uint64 `json:"current"`
-			Total   uint64 `json:"total"`
-		} `json:"swap"`
-		Disk struct {
-			Current uint64 `json:"current"`
-			Total   uint64 `json:"total"`
-		} `json:"disk"`
-		Xray struct {
-			State    ProcessState `json:"state"`
-			ErrorMsg string       `json:"errorMsg"`
-			Version  string       `json:"version"`
-		} `json:"xray"`
-		Uptime   uint64    `json:"uptime"`
-		Loads    []float64 `json:"loads"`
-		TcpCount int       `json:"tcpCount"`
-		UdpCount int       `json:"udpCount"`
-		NetIO    struct {
-			Up   uint64 `json:"up"`
-			Down uint64 `json:"down"`
-		} `json:"netIO"`
-		NetTraffic struct {
-			Sent uint64 `json:"sent"`
-			Recv uint64 `json:"recv"`
-		} `json:"netTraffic"`
-		PublicIP struct {
-			IPv4 string `json:"ipv4"`
-			IPv6 string `json:"ipv6"`
-		} `json:"publicIP"`
-		AppStats struct {
-			Threads uint32 `json:"threads"`
-			Mem     uint64 `json:"mem"`
-			Uptime  uint64 `json:"uptime"`
-		} `json:"appStats"`
-	} `json:"obj"`
-}
-
-type GetInboundsResponse struct {
-	Success bool      `json:"success"`
-	Msg     string    `json:"msg"`
-	Obj     []Inbound `json:"obj"`
-}
-
-type Inbound struct {
-	ID             int          `json:"id"`
-	Up             int          `json:"up"`
-	Down           int          `json:"down"`
-	Total          int          `json:"total"`
-	Remark         string       `json:"remark"`
-	Enable         bool         `json:"enable"`
-	ExpiryTime     int          `json:"expiryTime"`
-	ClientStats    []ClientStat `json:"clientStats"`
-	Listen         string       `json:"listen"`
-	Port           int          `json:"port"`
-	Protocol       string       `json:"protocol"`
-	Settings       string       `json:"settings"`
-	StreamSettings string       `json:"streamSettings"`
-	Tag            string       `json:"tag"`
-	Sniffing       string       `json:"sniffing"`
-}
-
-type ClientStat struct {
-	ID         int    `json:"id"`
-	InboundID  int    `json:"inboundId"`
-	Enable     bool   `json:"enable"`
-	Email      string `json:"email"`
-	Up         int    `json:"up"`
-	Down       int    `json:"down"`
-	ExpiryTime int    `json:"expiryTime"`
-	Total      int    `json:"total"`
-	Reset      int    `json:"reset"`
 }

@@ -11,7 +11,10 @@ the Prometheus monitoring system.
 ## Features
 
 - **Online users**: Tracks the total number of online users.
-- **Server status**: Provides metrics about 3X-UI service.
+- **Clients up/down**: Tracks total uploaded/downloaded bytes per client.
+- **Inbounds up/down**: Tracks total uploaded/downloaded bytes per inbound.
+- **XRay version**: Provides XRay version used by 3X-UI.
+- **System status**: Tracks metrics about 3X-UI panel resources usage.
 
 ## Metrics
 
