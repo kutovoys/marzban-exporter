@@ -129,13 +129,14 @@ func FetchServerStatus(cookie *http.Cookie) {
 	}
 
 	// XRay metrics
-	XrayVersion := strings.ReplaceAll(response.Obj.Xray.Version, ".", "")
-	num, err := strconv.ParseFloat(XrayVersion, 64)
+	xrayVersion := strings.ReplaceAll(response.Obj.Xray.Version, ".", "")
+	num, err := strconv.ParseFloat(xrayVersion, 64)
 	if err != nil {
-		fmt.Println("Error converting XrayVersion:", err)
-		return
+		fmt.Println("Error converting xrayVersion:", err)
+		metrics.XrayVersion.WithLabelValues(response.Obj.Xray.Version).Set(num)
+	} else {
+		metrics.XrayVersion.WithLabelValues(response.Obj.Xray.Version).Set(1)
 	}
-	metrics.XrayVersion.WithLabelValues(response.Obj.Xray.Version).Set(num)
 
 	// Panel metrics
 	metrics.PanelThreads.Set(float64(response.Obj.AppStats.Threads))
