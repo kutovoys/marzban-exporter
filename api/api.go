@@ -12,6 +12,7 @@ import (
 	"marzban-exporter/models"
 	"net"
 	"net/http"
+    "net/url"
 	"sync"
 	"time"
 )
@@ -31,7 +32,7 @@ func GetAuthToken() (string, error) {
 	}
 
 	path := "/api/admin/token"
-	data := []byte(fmt.Sprintf("username=%s&password=%s", config.CLIConfig.ApiUsername, config.CLIConfig.ApiPassword))
+	data := []byte(fmt.Sprintf("username=%s&password=%s", url.QueryEscape(config.CLIConfig.ApiUsername), url.QueryEscape(config.CLIConfig.ApiPassword)))
 	httpClient := createHttpClient()
 	req, err := createRequest("POST", path, "")
 	if err != nil {
