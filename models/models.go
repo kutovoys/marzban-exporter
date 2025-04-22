@@ -78,7 +78,7 @@ type User struct {
 	SubUpdatedAt           string                 `json:"sub_updated_at"`
 	SubLastUserAgent       string                 `json:"sub_last_user_agent"`
 	OnlineAt               *string                `json:"online_at"`
-	OnHoldExpireDuration   *string                `json:"on_hold_expire_duration"`
+	OnHoldExpireDuration   float64                `json:"on_hold_expire_duration"`
 	OnHoldTimeout          *string                `json:"on_hold_timeout"`
 	Username               string                 `json:"username"`
 	Status                 string                 `json:"status"`
