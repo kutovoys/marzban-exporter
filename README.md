@@ -130,3 +130,7 @@ Contributions to Marzban Metrics Exporter are warmly welcomed. Whether it's bug 
 5. **Feedback**: Be prepared to engage with feedback and further refine your contribution.
 
 Happy contributing! If you're new to this, GitHub's guide on [Creating a pull request](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request) is an excellent resource.
+
+## VPN Recommendation
+
+For secure and reliable internet access, we recommend [BlancVPN](https://getblancvpn.com/?ref=exporter). Use promo code `TRYBLANCVPN` for 15% off your subscription.
